@@ -1,42 +1,34 @@
 package frontend
 
 import (
-	"fmt"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 )
 
 type Ui struct {
-	app  fyne.App
-	win  fyne.Window
-	name string
+	app        fyne.App
+	win        fyne.Window
+	colorLabel *widget.Label
+	clock      *widget.Label
 }
 
-func CreateView() *Ui {
+func CreateView(color *binding.String) *Ui {
 	var ui Ui
-	ui.name = "wtff"
 	ui.app = app.New()
 	ui.win = ui.app.NewWindow("MIDI Listener")
-
-	hello := widget.NewLabel("Hello FYNE!")
+	ui.colorLabel = widget.NewLabelWithData(*color)
 
 	ui.win.SetContent(container.NewVBox(
-		hello,
-		widget.NewButton("Hi!", func() {
-			hello.SetText("Welcome!")
-		}),
+		ui.colorLabel,
 	))
 
 	return &ui
 }
 
-func (ui *Ui) Render() {
+func (ui *Ui) Start() {
 	ui.win.ShowAndRun()
-}
-
-func (ui *Ui) PrintName() {
-	fmt.Print(ui.name)
+	ui.app.Quit()
 }

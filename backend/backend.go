@@ -3,12 +3,14 @@ package backend
 import (
 	"fmt"
 
+	"fyne.io/fyne/v2/data/binding"
+
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
 )
 
-func ListenForMidiInput(color *string) {
+func ListenForMidiInput(color binding.String) {
 	defer midi.CloseDriver()
 
 	in, err := drivers.InByName("VMPK Output")
@@ -25,10 +27,17 @@ func ListenForMidiInput(color *string) {
 			fmt.Printf("Got sysex: %X\n", bt)
 		case msg.GetNoteStart(&ch, &key, &velo):
 			fmt.Printf("Read note %s", midi.Note(key).Name())
-			fmt.Printf("-> setting color to: \n")
 
 			// TODO
-			*color += "XD"
+			col, err := color.Get()
+			if err != nil {
+				fmt.Println("Error when getting string from bound data")
+				return
+			}
+			newCol := col + "XD"
+			color.Set(newCol)
+
+			fmt.Printf("-> setting color to: %s\n", newCol)
 		case msg.GetNoteEnd(&ch, &key):
 			// TODO
 		default:
