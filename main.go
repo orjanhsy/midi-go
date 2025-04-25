@@ -22,7 +22,7 @@ func main() {
 	appl := app.New()
 	win := appl.NewWindow("Midi Listener")
 
-	boundClrLab.Set("Yellow")
+	boundClrLab.Set("White")
 	clrLab := widget.NewLabelWithData(boundClrLab)
 	rect := canvas.NewRectangle(color.White)
 
