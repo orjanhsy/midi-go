@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/data/binding"
 
 	"gitlab.com/gomidi/midi/v2"
@@ -13,7 +12,7 @@ import (
 	"midi/clrconv"
 )
 
-func ListenForMidiInput(clrLab binding.String, rect *canvas.Rectangle) {
+func ListenForMidiInput(clrLab binding.String, colorChangeHandler func(string)) {
 	defer midi.CloseDriver()
 
 	in, err := drivers.InByName("VMPK Output")
@@ -40,13 +39,7 @@ func ListenForMidiInput(clrLab binding.String, rect *canvas.Rectangle) {
 			fmt.Printf("-> setting color to: %s\n", newCol)
 
 			fyne.Do(func() {
-				clrLab.Set(newCol)
-				rectClr, err := clrconv.GetRGBAFromReadableColor(clrLab)
-				if err != nil {
-					return
-				}
-				rect.FillColor = rectClr
-				rect.Refresh()
+				colorChangeHandler(newCol)
 			})
 
 		case msg.GetNoteEnd(&ch, &key):

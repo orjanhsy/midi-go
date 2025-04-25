@@ -12,6 +12,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 
 	"midi/backend"
+	"midi/clrconv"
 )
 
 func main() {
@@ -26,9 +27,19 @@ func main() {
 	clrLab := widget.NewLabelWithData(boundClrLab)
 	rect := canvas.NewRectangle(color.White)
 
+	colorChangeHandler := func(newCol string) {
+		boundClrLab.Set(newCol)
+		rectClr, err := clrconv.GetRGBAFromReadableColor(boundClrLab)
+		if err != nil {
+			return
+		}
+		rect.FillColor = rectClr
+		rect.Refresh()
+	}
+
 	go func() {
 		defer wg.Done()
-		backend.ListenForMidiInput(boundClrLab, rect)
+		backend.ListenForMidiInput(boundClrLab, colorChangeHandler)
 	}()
 	fmt.Printf("Backend up\n")
 
