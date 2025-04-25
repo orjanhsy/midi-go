@@ -3,14 +3,17 @@ package backend
 import (
 	"fmt"
 
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/data/binding"
 
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
+	"midi/clrconv"
 )
 
-func ListenForMidiInput(color binding.String) {
+func ListenForMidiInput(clrLab binding.String, rect *canvas.Rectangle) {
 	defer midi.CloseDriver()
 
 	in, err := drivers.InByName("VMPK Output")
@@ -28,16 +31,24 @@ func ListenForMidiInput(color binding.String) {
 		case msg.GetNoteStart(&ch, &key, &velo):
 			fmt.Printf("Read note %s", midi.Note(key).Name())
 
-			// TODO
-			col, err := color.Get()
+			newColRGB := clrconv.NoteToRGBColor(midi.Note(key).Name())
+			newCol, err := clrconv.GetReadableColorFromRGB(newColRGB)
 			if err != nil {
-				fmt.Println("Error when getting string from bound data")
+				fmt.Print("Failed to convert color from rbg to readable.\n")
 				return
 			}
-			newCol := col + "XD"
-			color.Set(newCol)
-
 			fmt.Printf("-> setting color to: %s\n", newCol)
+
+			fyne.Do(func() {
+				clrLab.Set(newCol)
+				rectClr, err := clrconv.GetRGBAFromReadableColor(clrLab)
+				if err != nil {
+					return
+				}
+				rect.FillColor = rectClr
+				rect.Refresh()
+			})
+
 		case msg.GetNoteEnd(&ch, &key):
 			// TODO
 		default:
