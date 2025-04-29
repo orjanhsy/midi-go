@@ -1,24 +1,63 @@
 package backend
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/data/binding"
 
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
-	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv"
 	"midi/clrconv"
 )
 
+func selectDriver(name string) (drivers.In, error) {
+	in, err := midi.FindInPort(name)
+	if err != nil {
+		return nil, err
+	} else {
+		return in, nil
+	}
+}
+
+func readIndexFromStdin() int {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Skriv enhetens id: ")
+	strIndex, err := reader.ReadString('\n')
+	if err != nil {
+		println("Failed to read keyboard input")
+		return -1
+	}
+
+	index, err := strconv.Atoi(strings.TrimSuffix(strIndex, "\n"))
+	if err != nil {
+		fmt.Printf("Failed to convert <%s> to int. Got %d\n", strIndex, index)
+		return -1
+	}
+	return index
+}
+
 func ListenForMidiInput(clrLab binding.String, colorChangeHandler func(string)) {
 	defer midi.CloseDriver()
+	inPorts := midi.GetInPorts()
+	fmt.Print(inPorts.String())
 
-	in, err := drivers.InByName("VMPK Output")
-	if err != nil {
-		fmt.Printf("Failed to locate diver")
+	index := readIndexFromStdin()
+	if index < 0 {
+		fmt.Println("Reading index failed")
 		return
+	}
+
+	in := inPorts[index]
+	if in == nil {
+		fmt.Println("Selected device was nil")
+		return
+	} else {
+		fmt.Printf("Connected to %s\n", in.String())
 	}
 
 	stop, err := midi.ListenTo(in, func(msg midi.Message, timestampms int32) {

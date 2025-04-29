@@ -37,6 +37,8 @@ func NoteToRGBColor(note string) color.Color {
 		return color.RGBA{R: 255, G: 0, B: 0, A: 255} // Red
 	case "B":
 		return color.RGBA{R: 255, G: 165, B: 0, A: 255} // Orange
+	case "Bb":
+		return color.RGBA{R: 255, G: 165, B: 0, A: 255} // Orange
 	case "C":
 		return color.RGBA{R: 255, G: 255, B: 0, A: 255} // Yellow
 	case "D":

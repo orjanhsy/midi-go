@@ -11,6 +11,7 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 
+	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
 	"midi/backend"
 	"midi/clrconv"
 )
