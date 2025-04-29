@@ -2,7 +2,8 @@ package main
 
 import (
 	"log"
-	"slices"
+	"net/http"
+	_ "net/http/pprof"
 	"sync"
 
 	"fyne.io/fyne/v2"
@@ -30,20 +31,33 @@ func DeviceMenu(wg *sync.WaitGroup) *widget.List {
 	deviceNames := getCurrentDeviceNames()
 	deviceMenuState := state.DeviceMenuState{
 		Devices:          binding.BindStringList(&deviceNames),
-		ConnectedDevices: []string{},
+		ConnectedDevices: make(map[string]func()),
 	}
 
-	onDeviceButtonClicked := func(deviceName string) {
-		if slices.Contains(deviceMenuState.ConnectedDevices, deviceName) {
-			log.Printf("Already listening to %s\n", deviceName)
+	onDeviceClicked := func(deviceName string, co *widget.Button) {
+		if stop, exists := deviceMenuState.ConnectedDevices[deviceName]; exists {
+			stop()
+			delete(deviceMenuState.ConnectedDevices, deviceName)
+			co.Icon = nil
+			log.Printf("Stopped listening to device %s\n", deviceName)
 			return
 		}
-		log.Printf("Now listening to device: %s\n", deviceName)
+
+		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			deviceMenuState.ConnectedDevices = append(deviceMenuState.ConnectedDevices, deviceName)
-			backend.ListenForMidiInput(deviceName)
+			stop := backend.ListenForMidiInput(deviceName)
+			deviceMenuState.ConnectedDevices[deviceName] = stop
 		}()
+
+		log.Printf("Now listening to device: %s\n", deviceName)
+
+		iconPath := "assets/connected.png"
+		icon, err := fyne.LoadResourceFromPath(iconPath)
+		if err != nil {
+			log.Printf("Failed to locate connected icon at %s", iconPath)
+		}
+		co.SetIcon(icon)
 	}
 
 	list := widget.NewListWithData(deviceMenuState.Devices,
@@ -57,19 +71,7 @@ func DeviceMenu(wg *sync.WaitGroup) *widget.List {
 				return
 			}
 			co.(*widget.Button).OnTapped = func() {
-				wg.Add(1)
-				onDeviceButtonClicked(buttonLabel)
-
-				if co.(*widget.Button).Icon == nil {
-					iconPath := "assets/connected.png"
-					icon, err := fyne.LoadResourceFromPath(iconPath)
-					if err != nil {
-						log.Printf("Failed to locate connected icon at %s", iconPath)
-					}
-					co.(*widget.Button).SetIcon(icon)
-				} else {
-					co.(*widget.Button).SetIcon(nil)
-				}
+				onDeviceClicked(buttonLabel, co.(*widget.Button))
 			}
 			co.(*widget.Button).SetText(buttonLabel)
 		},
@@ -79,22 +81,42 @@ func DeviceMenu(wg *sync.WaitGroup) *widget.List {
 
 func main() {
 	var wg sync.WaitGroup
+	defer midi.CloseDriver()
 	appl := app.New()
 	win := appl.NewWindow("Midi Listener")
 
-	onDeviceMenuClicked := func() { win.SetContent(DeviceMenu(&wg)) }
-	onListenerButtonClicked := func() { return }
-	onSettingsButtonClicked := func() { return }
+	prevChan := make(chan fyne.CanvasObject, 1)
+	onBackClicked := func() {
+		log.Print("Back button clicked")
+		prev := <-prevChan
+		win.SetContent(prev)
+		win.Content().Refresh()
+	}
+	backButton := widget.NewButton("Tilbake", onBackClicked)
+
+	onDeviceMenuClicked := func() {
+		log.Print("Device menu clicked\n")
+		prev := win.Content()
+		prevChan <- prev
+
+		content := container.NewBorder(nil, backButton, nil, nil, DeviceMenu(&wg))
+		win.SetContent(content)
+		win.Content().Refresh()
+	}
+
+	onListenerClicked := func() { return }
+	onSettingsClicked := func() { return }
 
 	deviceMenuButton := widget.NewButton("Enheter", onDeviceMenuClicked)
-	listenerButton := widget.NewButton("Visualiser", onListenerButtonClicked)
-	settingsButton := widget.NewButton("Innstillinger", onSettingsButtonClicked)
+	listenerButton := widget.NewButton("Visualiser", onListenerClicked)
+	settingsButton := widget.NewButton("Innstillinger", onSettingsClicked)
 
 	bottomBar := container.NewGridWithColumns(3, deviceMenuButton, listenerButton, settingsButton)
 
 	content := container.NewBorder(nil, bottomBar, nil, nil, nil)
 
 	win.SetContent(content)
+
 	win.ShowAndRun()
 	appl.Quit()
 	log.Println("Program closed")

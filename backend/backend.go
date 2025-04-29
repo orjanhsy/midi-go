@@ -23,9 +23,7 @@ func handleNoteStart(key uint8, midiPortName string) {
 	return
 }
 
-func ListenForMidiInput(portName string) {
-	defer midi.CloseDriver()
-
+func ListenForMidiInput(portName string) func() {
 	in, err := midi.FindInPort(portName)
 	if err != nil {
 		log.Fatal("Couldnt find port")
@@ -38,6 +36,7 @@ func ListenForMidiInput(portName string) {
 		switch {
 		case msg.GetSysEx(&bt):
 			fmt.Printf("Got sysex: %X\n", bt)
+			in.Close()
 		case msg.GetNoteStart(&ch, &key, &velo):
 			// handleNoteStart(msg, ch, key, velo)
 			handleNoteStart(key, in.String())
@@ -48,10 +47,9 @@ func ListenForMidiInput(portName string) {
 		}
 	}, midi.UseSysEx())
 	if err != nil {
-		fmt.Printf("Failed to listen to inPort")
-		return
+		log.Print("Failed to listen to inPort")
+		return nil
 	}
 
-	defer stop()
-	select {}
+	return stop
 }
