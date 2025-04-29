@@ -3,16 +3,15 @@ package backend
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/data/binding"
 
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
-	"midi/clrconv"
 )
 
 func selectDriver(name string) (drivers.In, error) {
@@ -32,7 +31,6 @@ func readIndexFromStdin() int {
 		println("Failed to read keyboard input")
 		return -1
 	}
-
 	index, err := strconv.Atoi(strings.TrimSuffix(strIndex, "\n"))
 	if err != nil {
 		fmt.Printf("Failed to convert <%s> to int. Got %d\n", strIndex, index)
@@ -41,7 +39,13 @@ func readIndexFromStdin() int {
 	return index
 }
 
-func ListenForMidiInput(clrLab binding.String, colorChangeHandler func(string)) {
+// func handleNoteStart(msg midi.Message, ch uint8, key uint8, velo uint8) {
+func handleNoteStart(key uint8) {
+	log.Printf("Read note %s\n", midi.Note(key).Name())
+	return
+}
+
+func ListenForMidiInput(clrLab binding.String) {
 	defer midi.CloseDriver()
 	inPorts := midi.GetInPorts()
 	fmt.Print(inPorts.String())
@@ -63,24 +67,13 @@ func ListenForMidiInput(clrLab binding.String, colorChangeHandler func(string)) 
 	stop, err := midi.ListenTo(in, func(msg midi.Message, timestampms int32) {
 		var bt []byte
 		var ch, key, velo uint8
+
 		switch {
 		case msg.GetSysEx(&bt):
 			fmt.Printf("Got sysex: %X\n", bt)
 		case msg.GetNoteStart(&ch, &key, &velo):
-			fmt.Printf("Read note %s", midi.Note(key).Name())
-
-			newColRGB := clrconv.NoteToRGBColor(midi.Note(key).Name())
-			newCol, err := clrconv.GetReadableColorFromRGB(newColRGB)
-			if err != nil {
-				fmt.Print("Failed to convert color from rbg to readable.\n")
-				return
-			}
-			fmt.Printf("-> setting color to: %s\n", newCol)
-
-			fyne.Do(func() {
-				colorChangeHandler(newCol)
-			})
-
+			// handleNoteStart(msg, ch, key, velo)
+			handleNoteStart(key)
 		case msg.GetNoteEnd(&ch, &key):
 			// TODO
 		default:

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"sync"
 
@@ -13,7 +12,6 @@ import (
 
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
 	"midi/backend"
-	"midi/clrconv"
 )
 
 func main() {
@@ -28,21 +26,10 @@ func main() {
 	clrLab := widget.NewLabelWithData(boundClrLab)
 	rect := canvas.NewRectangle(color.White)
 
-	colorChangeHandler := func(newCol string) {
-		boundClrLab.Set(newCol)
-		rectClr, err := clrconv.GetRGBAFromReadableColor(boundClrLab)
-		if err != nil {
-			return
-		}
-		rect.FillColor = rectClr
-		rect.Refresh()
-	}
-
 	go func() {
 		defer wg.Done()
-		backend.ListenForMidiInput(boundClrLab, colorChangeHandler)
+		backend.ListenForMidiInput(boundClrLab)
 	}()
-	fmt.Printf("Backend up\n")
 
 	win.SetContent(
 		container.NewBorder(clrLab, nil, nil, nil, rect),
