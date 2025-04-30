@@ -69,9 +69,9 @@ func createDeviceList(dms state.DeviceMenuState) *widget.List {
 	return list
 }
 
-func CreateDeviceMenu(dms state.DeviceMenuState, backButton *widget.Button) *fyne.Container {
+func CreateDeviceMenu(dms state.DeviceMenuState, bottomBar *fyne.Container) *fyne.Container {
 	list := createDeviceList(dms)
-	menu := container.NewBorder(nil, backButton, nil, nil, list)
+	menu := container.NewBorder(nil, bottomBar, nil, nil, list)
 
 	return menu
 }

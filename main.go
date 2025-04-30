@@ -3,11 +3,7 @@ package main
 import (
 	"log"
 
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
-	"fyne.io/fyne/v2/widget"
 
 	"gitlab.com/gomidi/midi/v2"
 	_ "gitlab.com/gomidi/midi/v2/drivers/rtmididrv" // autoregisters driver
@@ -25,47 +21,19 @@ func getCurrentDeviceNames() []string {
 }
 
 func main() {
-	appl := app.New()
-	win := appl.NewWindow("Midi Listener")
+	ui := frontend.Ui{}
 
-	prevChan := make(chan fyne.CanvasObject, 1)
-	onBackClicked := func() {
-		log.Print("Back button clicked")
-		prev := <-prevChan
-		win.SetContent(prev)
-		win.Content().Refresh()
-	}
-	backButton := widget.NewButton("Tilbake", onBackClicked)
 	deviceNames := getCurrentDeviceNames()
+
 	dms := state.DeviceMenuState{
 		Devices:          binding.BindStringList(&deviceNames),
 		ConnectedDevices: make(map[string]func()),
 	}
 
-	onDeviceMenuClicked := func() {
-		log.Print("Device menu clicked\n")
-		prev := win.Content()
-		prevChan <- prev
+	ui.Init(dms)
+	ui.RenderDeviceMenu() // initial ui
 
-		content := frontend.CreateDeviceMenu(dms, backButton)
-		win.SetContent(content)
-		win.Content().Refresh()
-	}
+	ui.Run()
 
-	onListenerClicked := func() { return }
-	onSettingsClicked := func() { return }
-
-	deviceMenuButton := widget.NewButton("Enheter", onDeviceMenuClicked)
-	listenerButton := widget.NewButton("Visualiser", onListenerClicked)
-	settingsButton := widget.NewButton("Innstillinger", onSettingsClicked)
-
-	bottomBar := container.NewGridWithColumns(3, deviceMenuButton, listenerButton, settingsButton)
-
-	content := container.NewBorder(nil, bottomBar, nil, nil, nil)
-
-	win.SetContent(content)
-
-	win.ShowAndRun()
-	appl.Quit()
 	log.Println("Program closed")
 }
