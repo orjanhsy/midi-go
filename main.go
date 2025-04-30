@@ -24,25 +24,19 @@ func getCurrentDeviceNames() []string {
 	return deviceNames
 }
 
-func DeviceMenu() *widget.List {
-	deviceNames := getCurrentDeviceNames()
-	deviceMenuState := state.DeviceMenuState{
-		Devices:          binding.BindStringList(&deviceNames),
-		ConnectedDevices: make(map[string]func()),
-	}
-
+func DeviceMenu(dms state.DeviceMenuState) *widget.List {
 	onDeviceClicked := func(deviceName string, co *widget.Button) {
-		if stop, exists := deviceMenuState.ConnectedDevices[deviceName]; exists {
+		if stop, exists := dms.ConnectedDevices[deviceName]; exists {
 			stop()
 			midi.CloseDriver()
-			delete(deviceMenuState.ConnectedDevices, deviceName)
-			co.Icon = nil
+			delete(dms.ConnectedDevices, deviceName)
+			co.SetIcon(nil)
 			log.Printf("Stopped listening to device %s\n", deviceName)
 			return
 		}
 
 		stop := backend.ListenForMidiInput(deviceName)
-		deviceMenuState.ConnectedDevices[deviceName] = stop
+		dms.ConnectedDevices[deviceName] = stop
 
 		log.Printf("Now listening to device: %s\n", deviceName)
 
@@ -54,7 +48,7 @@ func DeviceMenu() *widget.List {
 		co.SetIcon(icon)
 	}
 
-	list := widget.NewListWithData(deviceMenuState.Devices,
+	list := widget.NewListWithData(dms.Devices,
 		func() fyne.CanvasObject {
 			return widget.NewButton("template", nil)
 		},
@@ -67,6 +61,19 @@ func DeviceMenu() *widget.List {
 			co.(*widget.Button).OnTapped = func() {
 				onDeviceClicked(buttonLabel, co.(*widget.Button))
 			}
+
+			if _, exists := dms.ConnectedDevices[buttonLabel]; exists {
+
+				iconPath := "assets/connected.png"
+				icon, err := fyne.LoadResourceFromPath(iconPath)
+				if err != nil {
+					log.Printf("Failed to locate connected icon at %s", iconPath)
+				}
+				co.(*widget.Button).SetIcon(icon)
+			} else {
+				co.(*widget.Button).SetIcon(nil)
+			}
+
 			co.(*widget.Button).SetText(buttonLabel)
 		},
 	)
@@ -85,13 +92,18 @@ func main() {
 		win.Content().Refresh()
 	}
 	backButton := widget.NewButton("Tilbake", onBackClicked)
+	deviceNames := getCurrentDeviceNames()
+	dms := state.DeviceMenuState{
+		Devices:          binding.BindStringList(&deviceNames),
+		ConnectedDevices: make(map[string]func()),
+	}
 
 	onDeviceMenuClicked := func() {
 		log.Print("Device menu clicked\n")
 		prev := win.Content()
 		prevChan <- prev
 
-		content := container.NewBorder(nil, backButton, nil, nil, DeviceMenu())
+		content := container.NewBorder(nil, backButton, nil, nil, DeviceMenu(dms))
 		win.SetContent(content)
 		win.Content().Refresh()
 	}
