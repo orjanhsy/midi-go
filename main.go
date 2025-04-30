@@ -2,9 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
-	_ "net/http/pprof"
-	"sync"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -27,7 +24,7 @@ func getCurrentDeviceNames() []string {
 	return deviceNames
 }
 
-func DeviceMenu(wg *sync.WaitGroup) *widget.List {
+func DeviceMenu() *widget.List {
 	deviceNames := getCurrentDeviceNames()
 	deviceMenuState := state.DeviceMenuState{
 		Devices:          binding.BindStringList(&deviceNames),
@@ -37,18 +34,15 @@ func DeviceMenu(wg *sync.WaitGroup) *widget.List {
 	onDeviceClicked := func(deviceName string, co *widget.Button) {
 		if stop, exists := deviceMenuState.ConnectedDevices[deviceName]; exists {
 			stop()
+			midi.CloseDriver()
 			delete(deviceMenuState.ConnectedDevices, deviceName)
 			co.Icon = nil
 			log.Printf("Stopped listening to device %s\n", deviceName)
 			return
 		}
 
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			stop := backend.ListenForMidiInput(deviceName)
-			deviceMenuState.ConnectedDevices[deviceName] = stop
-		}()
+		stop := backend.ListenForMidiInput(deviceName)
+		deviceMenuState.ConnectedDevices[deviceName] = stop
 
 		log.Printf("Now listening to device: %s\n", deviceName)
 
@@ -80,8 +74,6 @@ func DeviceMenu(wg *sync.WaitGroup) *widget.List {
 }
 
 func main() {
-	var wg sync.WaitGroup
-	defer midi.CloseDriver()
 	appl := app.New()
 	win := appl.NewWindow("Midi Listener")
 
@@ -99,7 +91,7 @@ func main() {
 		prev := win.Content()
 		prevChan <- prev
 
-		content := container.NewBorder(nil, backButton, nil, nil, DeviceMenu(&wg))
+		content := container.NewBorder(nil, backButton, nil, nil, DeviceMenu())
 		win.SetContent(content)
 		win.Content().Refresh()
 	}
@@ -120,5 +112,4 @@ func main() {
 	win.ShowAndRun()
 	appl.Quit()
 	log.Println("Program closed")
-	wg.Wait()
 }
