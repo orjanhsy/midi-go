@@ -30,7 +30,10 @@ func main() {
 		ConnectedDevices: make(map[string]func()),
 	}
 
-	ui.Init(dms)
+	ls := state.ListenerState{}
+	ls.SetColor("black") // black as initial color
+
+	ui.Init(dms, ls)
 	ui.RenderDeviceMenu() // initial ui
 
 	ui.Run()

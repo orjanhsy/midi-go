@@ -12,19 +12,19 @@ import (
 func NoteToColor(note string) string {
 	switch note {
 	case "A": // A
-		return "#FF0000" // Red
+		return "Red" // Red
 	case "B": // B
-		return "#FFA500" // Orange
+		return "Orange" // Orange
 	case "C": // C
-		return "#FFFF00" // Yellow
+		return "yellow" // Yellow
 	case "D": // D
-		return "#00FF00" // Green
+		return "green" // Green
 	case "E": // E
-		return "#0000FF" // Blue
+		return "blue" // Blue
 	case "F": // F
-		return "#4B0082" // Indigo
+		return "indigo" // Indigo
 	case "G": // G
-		return "#EE82EE" // Violet
+		return "violet" // Violet
 	default:
 		return ""
 	}
@@ -139,6 +139,7 @@ func GetRGBAFromReadableColor(clr binding.String) (color.RGBA, error) {
 		"blue":   {R: 0, G: 0, B: 255, A: 255},
 		"indigo": {R: 75, G: 0, B: 130, A: 255},
 		"violet": {R: 238, G: 130, B: 238, A: 255},
+		"black":  {R: 0, G: 0, B: 0, A: 255},
 		// add more if needed for extended support
 	}
 

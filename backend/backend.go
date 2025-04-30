@@ -6,6 +6,7 @@ import (
 
 	"gitlab.com/gomidi/midi/v2"
 	"gitlab.com/gomidi/midi/v2/drivers"
+	"midi/clrconv"
 )
 
 func selectDriver(name string) (drivers.In, error) {
@@ -17,10 +18,26 @@ func selectDriver(name string) (drivers.In, error) {
 	}
 }
 
+var onNoteRecieved func(string)
+
+func SetNoteRecievedHandler(handler func(string)) {
+	if handler != nil {
+		log.Println("Set Note Recieved handler")
+		onNoteRecieved = handler
+	} else {
+		log.Println("Cannot set onNoteRecieved to nil")
+	}
+}
+
 // func handleNoteStart(msg midi.Message, ch uint8, key uint8, velo uint8) {
 func handleNoteStart(key uint8, midiPortName string) {
-	log.Printf("Read note %s from %s\n", midi.Note(key).Name(), midiPortName)
-	return
+	if onNoteRecieved == nil {
+		log.Printf("Read note %s from %s. No action perfermed as no handler has been passed.\n", midi.Note(key).Name(), midiPortName)
+	} else {
+		log.Printf("Read note %s from %s.\n", midi.Note(key).Name(), midiPortName)
+		col := clrconv.NoteToColor(midi.Note(key).Name())
+		onNoteRecieved(col)
+	}
 }
 
 func ListenForMidiInput(portName string) func() {

@@ -9,7 +9,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 
 	"gitlab.com/gomidi/midi/v2"
-	"midi/backend"
 	"midi/state"
 )
 
@@ -24,9 +23,7 @@ func createDeviceList(dms state.DeviceMenuState) *widget.List {
 			return
 		}
 
-		stop := backend.ListenForMidiInput(deviceName)
-		dms.ConnectedDevices[deviceName] = stop
-
+		dms.ConnectDevice(deviceName)
 		log.Printf("Now listening to device: %s\n", deviceName)
 
 		iconPath := "assets/connected.png"

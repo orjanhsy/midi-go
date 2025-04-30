@@ -13,20 +13,24 @@ type Ui struct {
 	app fyne.App
 	win fyne.Window
 
-	BottomBar  *fyne.Container
-	DeviceMenu *fyne.Container
+	BottomBar      *fyne.Container
+	DeviceMenu     *fyne.Container
+	ListenerScreen *fyne.Container
 }
 
-func (ui *Ui) Init(dms state.DeviceMenuState) {
+func (ui *Ui) Init(dms state.DeviceMenuState, ls state.ListenerState) {
 	ui.app = app.New()
 	ui.win = ui.app.NewWindow("Midi-Lytter")
 
 	onDeviceMenuClicked := func() {
-		log.Print("Device menu clicked\n")
+		log.Println("User clicked deviceMenuScreen")
 		ui.RenderDeviceMenu()
 	}
 
-	onListenerClicked := func() { return }
+	onListenerClicked := func() {
+		log.Println("User clicked listenerScreen")
+		ui.RenderListenerScreen()
+	}
 
 	onSettingsClicked := func() { return }
 
@@ -37,6 +41,7 @@ func (ui *Ui) Init(dms state.DeviceMenuState) {
 	)
 
 	ui.DeviceMenu = CreateDeviceMenu(dms, ui.BottomBar)
+	ui.ListenerScreen = CreateListenerScreen(ls, ui.BottomBar)
 }
 
 // blocks
@@ -47,5 +52,10 @@ func (ui *Ui) Run() {
 
 func (ui *Ui) RenderDeviceMenu() {
 	ui.win.SetContent(ui.DeviceMenu)
+	ui.win.Content().Refresh()
+}
+
+func (ui *Ui) RenderListenerScreen() {
+	ui.win.SetContent(ui.ListenerScreen)
 	ui.win.Content().Refresh()
 }
