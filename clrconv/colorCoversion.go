@@ -2,11 +2,8 @@ package clrconv
 
 import (
 	"errors"
-	"fmt"
 	"image/color"
 	"strings"
-
-	"fyne.io/fyne/v2/data/binding"
 )
 
 func NoteToColor(note string) string {
@@ -123,12 +120,7 @@ func GetReadableColorFromRGB(c color.Color) (string, error) {
 	return "", errors.New("color not found")
 }
 
-func GetRGBAFromReadableColor(clr binding.String) (color.RGBA, error) {
-	name, err := clr.Get()
-	if err != nil {
-		fmt.Println("Failed to get string value of binding")
-		return color.RGBA{}, err
-	}
+func GetRGBAFromReadableColor(name string) (color.RGBA, error) {
 	name = strings.ToLower(name)
 
 	colors := map[string]color.RGBA{

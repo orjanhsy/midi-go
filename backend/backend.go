@@ -18,9 +18,9 @@ func selectDriver(name string) (drivers.In, error) {
 	}
 }
 
-var onNoteRecieved func(string)
+var onNoteRecieved func(string, string)
 
-func SetNoteRecievedHandler(handler func(string)) {
+func SetNoteRecievedHandler(handler func(string, string)) {
 	if handler != nil {
 		log.Println("Set Note Recieved handler")
 		onNoteRecieved = handler
@@ -36,7 +36,8 @@ func handleNoteStart(key uint8, midiPortName string) {
 	} else {
 		log.Printf("Read note %s from %s.\n", midi.Note(key).Name(), midiPortName)
 		col := clrconv.NoteToColor(midi.Note(key).Name())
-		onNoteRecieved(col)
+		name := midi.Note(key).Name()
+		onNoteRecieved(col, name)
 	}
 }
 

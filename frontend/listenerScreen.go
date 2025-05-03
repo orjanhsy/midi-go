@@ -1,6 +1,7 @@
 package frontend
 
 import (
+	"image/color"
 	"log"
 
 	"fyne.io/fyne/v2"
@@ -19,8 +20,17 @@ func CreateListenerScreen(ls state.ListenerState, bottomBar *fyne.Container) *fy
 	}
 
 	rect := canvas.NewRectangle(rgba)
-	ls.SetNoteHandler(rect)
+	noteLab := canvas.NewText("", color.Black)
+	noteLab.TextSize = 40
+	noteLab.TextStyle.Bold = true
 
-	listenerScreen := container.NewBorder(nil, bottomBar, nil, nil, rect)
+	ls.SetNoteHandler(rect, noteLab)
+
+	center := container.NewStack(
+		rect,
+		container.NewCenter(noteLab),
+	)
+
+	listenerScreen := container.NewBorder(nil, bottomBar, nil, nil, center)
 	return listenerScreen
 }
