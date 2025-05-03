@@ -21,7 +21,7 @@ func CreateListenerScreen(ls state.ListenerState, bottomBar *fyne.Container) *fy
 
 	rect := canvas.NewRectangle(rgba)
 	noteLab := canvas.NewText("", color.Black)
-	noteLab.TextSize = 40
+	noteLab.TextSize = 60
 	noteLab.TextStyle.Bold = true
 
 	ls.SetNoteHandler(rect, noteLab)
