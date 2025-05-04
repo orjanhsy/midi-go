@@ -1,4 +1,5 @@
 [Details]
-Icon = "assets/appicon.png"
-Name = "Midi Lytter"
-ID = "com.listener.midi"
+  Icon = "assets/appicon.png"
+  Name = "Midi Lytter"
+  ID = "com.listener.midi"
+  Build = 1
