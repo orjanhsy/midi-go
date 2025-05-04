@@ -12,7 +12,7 @@ import (
 	"midi/state"
 )
 
-func CreateListenerScreen(ls state.ListenerState, bottomBar *fyne.Container) *fyne.Container {
+func CreateListenerScreen(ls state.ListenerState, bottomBar *fyne.Container, showLab bool) *fyne.Container {
 	col := ls.GetColor()
 	rgba, err := clrconv.GetRGBAFromReadableColor(col)
 	if err != nil {
@@ -21,8 +21,12 @@ func CreateListenerScreen(ls state.ListenerState, bottomBar *fyne.Container) *fy
 
 	rect := canvas.NewRectangle(rgba)
 	noteLab := canvas.NewText("", color.Black)
-	noteLab.TextSize = 60
+	noteLab.TextSize = 128
 	noteLab.TextStyle.Bold = true
+
+	if !showLab {
+		noteLab.Hide()
+	}
 
 	ls.SetNoteHandler(rect, noteLab)
 

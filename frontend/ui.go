@@ -16,6 +16,7 @@ type Ui struct {
 	BottomBar      *fyne.Container
 	DeviceMenu     *fyne.Container
 	ListenerScreen *fyne.Container
+	SettingsScreen *fyne.Container
 }
 
 func (ui *Ui) Init(dms state.DeviceMenuState, ls state.ListenerState) {
@@ -32,7 +33,10 @@ func (ui *Ui) Init(dms state.DeviceMenuState, ls state.ListenerState) {
 		ui.RenderListenerScreen()
 	}
 
-	onSettingsClicked := func() { return }
+	onSettingsClicked := func() {
+		log.Println("User clicked settingsScreen")
+		ui.RenderSettingsScreen()
+	}
 
 	ui.BottomBar = CreateAppBar(
 		onDeviceMenuClicked,
@@ -40,8 +44,13 @@ func (ui *Ui) Init(dms state.DeviceMenuState, ls state.ListenerState) {
 		onSettingsClicked,
 	)
 
+	pref := ui.app.Preferences()
 	ui.DeviceMenu = CreateDeviceMenu(dms, ui.BottomBar)
-	ui.ListenerScreen = CreateListenerScreen(ls, ui.BottomBar)
+	ui.ListenerScreen = CreateListenerScreen(
+		ls, ui.BottomBar,
+		pref.BoolWithFallback("showNote", true),
+	)
+	ui.SettingsScreen = CreateSettingsScreen(pref, ui.BottomBar)
 }
 
 // blocks
@@ -57,5 +66,10 @@ func (ui *Ui) RenderDeviceMenu() {
 
 func (ui *Ui) RenderListenerScreen() {
 	ui.win.SetContent(ui.ListenerScreen)
+	ui.win.Content().Refresh()
+}
+
+func (ui *Ui) RenderSettingsScreen() {
+	ui.win.SetContent(ui.SettingsScreen)
 	ui.win.Content().Refresh()
 }
