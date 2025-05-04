@@ -1,4 +1,4 @@
 [Details]
-# Icon = "assets/Icon.png"
+Icon = "assets/appicon.png"
 Name = "Midi Lytter"
 ID = "com.listener.midi"
