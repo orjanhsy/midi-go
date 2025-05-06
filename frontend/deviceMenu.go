@@ -26,12 +26,7 @@ func createDeviceList(dms state.DeviceMenuState) *widget.List {
 		dms.ConnectDevice(deviceName)
 		log.Printf("Now listening to device: %s\n", deviceName)
 
-		iconPath := "assets/connected.png"
-		icon, err := fyne.LoadResourceFromPath(iconPath)
-		if err != nil {
-			log.Printf("Failed to locate connected icon at %s", iconPath)
-		}
-		co.SetIcon(icon)
+		co.SetIcon(ResourceConnectedPng)
 	}
 
 	list := widget.NewListWithData(dms.Devices,
@@ -49,13 +44,7 @@ func createDeviceList(dms state.DeviceMenuState) *widget.List {
 			}
 
 			if _, exists := dms.ConnectedDevices[buttonLabel]; exists {
-
-				iconPath := "assets/connected.png"
-				icon, err := fyne.LoadResourceFromPath(iconPath)
-				if err != nil {
-					log.Printf("Failed to locate connected icon at %s", iconPath)
-				}
-				co.(*widget.Button).SetIcon(icon)
+				co.(*widget.Button).SetIcon(ResourceConnectedPng)
 			} else {
 				co.(*widget.Button).SetIcon(nil)
 			}
