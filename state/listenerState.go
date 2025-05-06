@@ -14,6 +14,10 @@ type ListenerState struct {
 	color string
 }
 
+func (ls *ListenerState) Init(color string) {
+	ls.SetColor(color)
+}
+
 func (ls *ListenerState) SetColor(color string) {
 	ls.color = color
 }

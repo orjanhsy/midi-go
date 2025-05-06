@@ -23,7 +23,11 @@ func createDeviceList(dms state.DeviceMenuState) *widget.List {
 			return
 		}
 
-		dms.ConnectDevice(deviceName)
+		if err := dms.ConnectDevice(deviceName); err != nil {
+			log.Printf("[DEVICE MENU] Could not connect to device")
+			co.SetIcon(nil)
+			return
+		}
 		log.Printf("Now listening to device: %s\n", deviceName)
 
 		co.SetIcon(ResourceConnectedPng)

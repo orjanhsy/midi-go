@@ -9,6 +9,15 @@ import (
 	"midi/clrconv"
 )
 
+func GetCurrentDeviceNames() []string {
+	devices := midi.GetInPorts()
+	deviceNames := make([]string, len(devices))
+	for i := 0; i < len(devices); i++ {
+		deviceNames[i] = devices[i].String()
+	}
+	return deviceNames
+}
+
 func selectDriver(name string) (drivers.In, error) {
 	in, err := midi.FindInPort(name)
 	if err != nil {
@@ -41,10 +50,11 @@ func handleNoteStart(key uint8, midiPortName string) {
 	}
 }
 
-func ListenForMidiInput(portName string) func() {
+func ListenForMidiInput(portName string) (func(), error) {
 	in, err := midi.FindInPort(portName)
 	if err != nil {
-		log.Fatal("Couldnt find port")
+		log.Println("[LISTENER] Could not find port")
+		return nil, err
 	}
 
 	stop, err := midi.ListenTo(in, func(msg midi.Message, timestampms int32) {
@@ -66,8 +76,8 @@ func ListenForMidiInput(portName string) func() {
 	}, midi.UseSysEx())
 	if err != nil {
 		log.Print("Failed to listen to inPort")
-		return nil
+		return nil, err
 	}
 
-	return stop
+	return stop, nil
 }
