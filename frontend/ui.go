@@ -47,8 +47,7 @@ func (ui *Ui) Init(dms state.DeviceMenuState, ls state.ListenerState) {
 	pref := ui.app.Preferences()
 	ui.DeviceMenu = CreateDeviceMenu(dms, ui.BottomBar)
 	ui.ListenerScreen = CreateListenerScreen(
-		ls, ui.BottomBar,
-		pref.BoolWithFallback("showNote", true),
+		ls, ui.BottomBar, pref,
 	)
 	ui.SettingsScreen = CreateSettingsScreen(pref, ui.BottomBar)
 }
