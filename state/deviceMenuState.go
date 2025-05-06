@@ -19,9 +19,9 @@ func (dms *DeviceMenuState) Init() {
 	dms.Devices = binding.BindStringList(&devices)
 	go func() {
 		for {
-			curr_dev := backend.GetCurrentDeviceNames()
-			dms.refreshDeviceList(curr_dev)
-			dms.cleanupDisconnectedDevices(curr_dev)
+			devs := backend.GetCurrentDeviceNames()
+			dms.refreshDeviceList(devs)
+			dms.cleanupDisconnectedDevices(devs)
 			time.Sleep(time.Second * 2)
 		}
 	}()
