@@ -2,11 +2,10 @@ package frontend
 
 import (
 	"log"
+	"midi/state"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-
-	"midi/state"
 )
 
 type Ui struct {
