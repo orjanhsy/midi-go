@@ -1,11 +1,12 @@
 package backend
 
 import (
+	"encoding/json"
 	"fmt"
 	"image/color"
 	"log"
-	"midi/clrconv"
 
+	"fyne.io/fyne/v2"
 	"gitlab.com/gomidi/midi/v2"
 )
 
@@ -18,9 +19,9 @@ func GetCurrentDeviceNames() []string {
 	return deviceNames
 }
 
-var onNoteRecieved func(color.RGBA, string)
+var onNoteRecieved func(string)
 
-func SetNoteRecievedHandler(handler func(color.RGBA, string)) {
+func SetNoteRecievedHandler(handler func(string)) {
 	if handler != nil {
 		log.Println("Set Note Recieved handler")
 		onNoteRecieved = handler
@@ -34,13 +35,8 @@ func handleNoteStart(key uint8, midiPortName string) {
 		log.Printf("Read note %s from %s. No action perfermed as no handler has been passed.\n", midi.Note(key).Name(), midiPortName)
 	} else {
 		log.Printf("Read note %s from %s.\n", midi.Note(key).Name(), midiPortName)
-		col, err := clrconv.GetRGBAFromNote(midi.Note(key).Name())
-		if err != nil {
-			log.Println("Failed to convert color.")
-		}
-
 		name := midi.Note(key).Name()
-		onNoteRecieved(col, name)
+		onNoteRecieved(name)
 	}
 }
 
@@ -74,4 +70,39 @@ func ListenForMidiInput(portName string) (func(), error) {
 	}
 
 	return stop, nil
+}
+
+func SaveNoteColors(prefs fyne.Preferences, colors map[string]color.RGBA) {
+	data, err := json.Marshal(colors)
+	if err != nil {
+		log.Println("Failed to marshal color map", err)
+		return
+	}
+	prefs.SetString("noteColors", string(data))
+}
+
+func LoadNoteColors(prefs fyne.Preferences) map[string]color.RGBA {
+	def := map[string]color.RGBA{
+		"A":  {R: 255, G: 255, B: 0, A: 255},   // yellow
+		"B":  {R: 64, G: 224, B: 208, A: 255},  // turquoise
+		"C":  {R: 0, G: 0, B: 0, A: 255},       // black
+		"D":  {R: 0, G: 0, B: 139, A: 255},     // really blue (dark blue)
+		"E":  {R: 0, G: 100, B: 0, A: 255},     // dark green
+		"F":  {R: 255, G: 165, B: 0, A: 255},   // orange
+		"F#": {R: 144, G: 238, B: 144, A: 255}, // light green (renamed from duplicate "f")
+		"G":  {R: 255, G: 0, B: 0, A: 255},     // red
+	}
+
+	data := prefs.String("noteColors")
+	if data == "" {
+		return def
+	}
+	var colors map[string]color.RGBA
+
+	if err := json.Unmarshal([]byte(data), &colors); err != nil {
+		log.Println("Failed to unmarshal color map", err)
+		return def
+	}
+
+	return colors
 }

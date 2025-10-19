@@ -14,9 +14,7 @@ func CreateListenerScreen(
 	bottomBar *fyne.Container,
 	pref fyne.Preferences,
 ) *fyne.Container {
-	col := ls.GetColor()
-
-	rect := canvas.NewRectangle(col)
+	rect := canvas.NewRectangle(color.Black)
 	noteLab := canvas.NewText("", color.Black)
 	noteLab.TextSize = 128
 	noteLab.TextStyle.Bold = true

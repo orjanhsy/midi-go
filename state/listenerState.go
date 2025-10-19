@@ -27,17 +27,17 @@ func (ls *ListenerState) GetColor() color.RGBA {
 func (ls *ListenerState) SetNoteHandler(
 	rect *canvas.Rectangle,
 	lab *canvas.Text,
-	pref fyne.Preferences,
+	prefs fyne.Preferences,
 ) {
-	handler := func(newCol color.RGBA, newNote string) {
-		ls.SetColor(newCol)
+	handler := func(newNote string) {
+		noteColors := backend.LoadNoteColors(prefs)
 		fyne.Do(
 			func() {
-				rect.FillColor = newCol
+				rect.FillColor = noteColors[newNote]
 				rect.Refresh()
 				lab.Text = newNote
 
-				if pref.BoolWithFallback("showNote", true) {
+				if prefs.BoolWithFallback("showNote", true) {
 					lab.Show()
 				} else {
 					lab.Hide()

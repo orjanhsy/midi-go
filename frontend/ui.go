@@ -43,12 +43,12 @@ func (ui *Ui) Init(dms state.DeviceMenuState, ls state.ListenerState) {
 		onSettingsClicked,
 	)
 
-	pref := ui.app.Preferences()
+	prefs := ui.app.Preferences()
 	ui.DeviceMenu = CreateDeviceMenu(dms, ui.BottomBar)
 	ui.ListenerScreen = CreateListenerScreen(
-		ls, ui.BottomBar, pref,
+		ls, ui.BottomBar, prefs,
 	)
-	ui.SettingsScreen = CreateSettingsScreen(pref, ui.BottomBar)
+	ui.SettingsScreen = CreateSettingsScreen(prefs, ui.BottomBar)
 }
 
 // blocks
