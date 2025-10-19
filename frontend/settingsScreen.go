@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -46,6 +47,9 @@ func CreateSettingsScreen(
 
 func createColorRow(note string, col color.RGBA, onChange func(string, color.RGBA)) fyne.CanvasObject {
 	label := widget.NewLabel(note + " →")
+	label.TextStyle = fyne.TextStyle{Monospace: true}
+	labelContainer := container.NewStack(label)
+	labelContainer.Resize(fyne.NewSize(40, label.MinSize().Height))
 
 	rEntry := widget.NewEntry()
 	gEntry := widget.NewEntry()
@@ -53,7 +57,8 @@ func createColorRow(note string, col color.RGBA, onChange func(string, color.RGB
 
 	for _, e := range []*widget.Entry{rEntry, gEntry, bEntry} {
 		e.MultiLine = false
-		e.Wrapping = fyne.TextTruncate
+		e.Scroll = fyne.ScrollNone
+		e.Wrapping = fyne.TextWrapOff
 	}
 
 	rEntry.SetText(strconv.Itoa(int(col.R)))
@@ -105,6 +110,14 @@ func createColorRow(note string, col color.RGBA, onChange func(string, color.RGB
 	rEntry.OnChanged = func(_ string) { update() }
 	gEntry.OnChanged = func(_ string) { update() }
 	bEntry.OnChanged = func(_ string) { update() }
+
+	rContainer := container.NewHBox(rEntry, layout.NewSpacer())
+	gContainer := container.NewHBox(gEntry, layout.NewSpacer())
+	bContainer := container.NewHBox(bEntry, layout.NewSpacer())
+
+	rContainer.Resize(fyne.NewSize(48, rEntry.MinSize().Height))
+	gContainer.Resize(fyne.NewSize(48, gEntry.MinSize().Height))
+	bContainer.Resize(fyne.NewSize(48, bEntry.MinSize().Height))
 
 	row := container.NewHBox(
 		label,
