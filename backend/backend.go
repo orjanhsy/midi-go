@@ -2,11 +2,11 @@ package backend
 
 import (
 	"fmt"
+	"image/color"
 	"log"
+	"midi/clrconv"
 
 	"gitlab.com/gomidi/midi/v2"
-	"gitlab.com/gomidi/midi/v2/drivers"
-	"midi/clrconv"
 )
 
 func GetCurrentDeviceNames() []string {
@@ -18,18 +18,9 @@ func GetCurrentDeviceNames() []string {
 	return deviceNames
 }
 
-func selectDriver(name string) (drivers.In, error) {
-	in, err := midi.FindInPort(name)
-	if err != nil {
-		return nil, err
-	} else {
-		return in, nil
-	}
-}
+var onNoteRecieved func(color.RGBA, string)
 
-var onNoteRecieved func(string, string)
-
-func SetNoteRecievedHandler(handler func(string, string)) {
+func SetNoteRecievedHandler(handler func(color.RGBA, string)) {
 	if handler != nil {
 		log.Println("Set Note Recieved handler")
 		onNoteRecieved = handler
@@ -38,13 +29,16 @@ func SetNoteRecievedHandler(handler func(string, string)) {
 	}
 }
 
-// func handleNoteStart(msg midi.Message, ch uint8, key uint8, velo uint8) {
 func handleNoteStart(key uint8, midiPortName string) {
 	if onNoteRecieved == nil {
 		log.Printf("Read note %s from %s. No action perfermed as no handler has been passed.\n", midi.Note(key).Name(), midiPortName)
 	} else {
 		log.Printf("Read note %s from %s.\n", midi.Note(key).Name(), midiPortName)
-		col := clrconv.NoteToColor(midi.Note(key).Name())
+		col, err := clrconv.GetRGBAFromNote(midi.Note(key).Name())
+		if err != nil {
+			log.Println("Failed to convert color.")
+		}
+
 		name := midi.Note(key).Name()
 		onNoteRecieved(col, name)
 	}

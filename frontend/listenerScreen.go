@@ -2,14 +2,11 @@ package frontend
 
 import (
 	"image/color"
-	"log"
+	"midi/state"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-
-	"midi/clrconv"
-	"midi/state"
 )
 
 func CreateListenerScreen(
@@ -18,12 +15,8 @@ func CreateListenerScreen(
 	pref fyne.Preferences,
 ) *fyne.Container {
 	col := ls.GetColor()
-	rgba, err := clrconv.GetRGBAFromReadableColor(col)
-	if err != nil {
-		log.Println("Failed to convert color for rectangle in listenerScreen")
-	}
 
-	rect := canvas.NewRectangle(rgba)
+	rect := canvas.NewRectangle(col)
 	noteLab := canvas.NewText("", color.Black)
 	noteLab.TextSize = 128
 	noteLab.TextStyle.Bold = true

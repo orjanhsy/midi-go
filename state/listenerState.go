@@ -1,28 +1,26 @@
 package state
 
 import (
-	"log"
+	"image/color"
+	"midi/backend"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
-
-	"midi/backend"
-	"midi/clrconv"
 )
 
 type ListenerState struct {
-	color string
+	color color.RGBA
 }
 
-func (ls *ListenerState) Init(color string) {
+func (ls *ListenerState) Init(color color.RGBA) {
 	ls.SetColor(color)
 }
 
-func (ls *ListenerState) SetColor(color string) {
+func (ls *ListenerState) SetColor(color color.RGBA) {
 	ls.color = color
 }
 
-func (ls *ListenerState) GetColor() string {
+func (ls *ListenerState) GetColor() color.RGBA {
 	return ls.color
 }
 
@@ -31,16 +29,11 @@ func (ls *ListenerState) SetNoteHandler(
 	lab *canvas.Text,
 	pref fyne.Preferences,
 ) {
-	handler := func(newCol string, newNote string) {
+	handler := func(newCol color.RGBA, newNote string) {
 		ls.SetColor(newCol)
-		rectCol, err := clrconv.GetRGBAFromReadableColor(ls.color)
-		if err != nil {
-			log.Println("Failed to convert color")
-		}
-
 		fyne.Do(
 			func() {
-				rect.FillColor = rectCol
+				rect.FillColor = newCol
 				rect.Refresh()
 				lab.Text = newNote
 

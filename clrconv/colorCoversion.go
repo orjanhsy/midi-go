@@ -6,43 +6,20 @@ import (
 	"strings"
 )
 
-func NoteToColor(note string) string {
-	switch note {
-	case "A": // A
-		return "Red" // Red
-	case "B": // B
-		return "Orange" // Orange
-	case "C": // C
-		return "yellow" // Yellow
-	case "D": // D
-		return "green" // Green
-	case "E": // E
-		return "blue" // Blue
-	case "F": // F
-		return "indigo" // Indigo
-	case "G": // G
-		return "violet" // Violet
-	default:
-		return ""
-	}
-}
-
-func GetRGBAFromReadableColor(name string) (color.RGBA, error) {
-	name = strings.ToLower(name)
+func GetRGBAFromNote(note string) (color.RGBA, error) {
+	note = strings.ToLower(note)
 
 	colors := map[string]color.RGBA{
-		"red":    {R: 255, G: 0, B: 0, A: 255},
-		"orange": {R: 255, G: 165, B: 0, A: 255},
-		"yellow": {R: 255, G: 255, B: 0, A: 255},
-		"green":  {R: 0, G: 255, B: 0, A: 255},
-		"blue":   {R: 0, G: 0, B: 255, A: 255},
-		"indigo": {R: 75, G: 0, B: 130, A: 255},
-		"violet": {R: 238, G: 130, B: 238, A: 255},
-		"black":  {R: 0, G: 0, B: 0, A: 255},
-		// add more if needed for extended support
+		"a": {R: 255, G: 0, B: 0, A: 255},
+		"b": {R: 255, G: 165, B: 0, A: 255},
+		"c": {R: 255, G: 255, B: 0, A: 255},
+		"d": {R: 0, G: 255, B: 0, A: 255},
+		"e": {R: 0, G: 0, B: 255, A: 255},
+		"f": {R: 75, G: 0, B: 130, A: 255},
+		"g": {R: 238, G: 130, B: 238, A: 255},
+		"":  {R: 0, G: 0, B: 0, A: 255},
 	}
-
-	if rgba, ok := colors[name]; ok {
+	if rgba, ok := colors[note]; ok {
 		return rgba, nil
 	}
 
