@@ -35,7 +35,14 @@ func (ls *ListenerState) SetNoteHandler(
 			func() {
 				rect.FillColor = noteColors[newNote]
 				rect.Refresh()
-				lab.Text = newNote
+				switch newNote {
+				case "Db":
+					lab.Text = "C#"
+				case "Gb":
+					lab.Text = "F#"
+				default:
+					lab.Text = newNote
+				}
 
 				if prefs.BoolWithFallback("showNote", true) {
 					lab.Show()

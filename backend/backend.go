@@ -83,13 +83,14 @@ func SaveNoteColors(prefs fyne.Preferences, colors map[string]color.RGBA) {
 
 func LoadNoteColors(prefs fyne.Preferences) map[string]color.RGBA {
 	def := map[string]color.RGBA{
-		"A":  {R: 255, G: 255, B: 0, A: 255},   // yellow
-		"B":  {R: 64, G: 224, B: 208, A: 255},  // turquoise
-		"C":  {R: 0, G: 0, B: 0, A: 255},       // black
-		"D":  {R: 0, G: 0, B: 139, A: 255},     // really blue (dark blue)
+		"A":  {R: 255, G: 255, B: 0, A: 255},  // yellow
+		"B":  {R: 64, G: 224, B: 208, A: 255}, // turquoise
+		"C":  {R: 0, G: 0, B: 0, A: 255},      // black
+		"D":  {R: 0, G: 0, B: 139, A: 255},    // really blue (dark blue)
+		"Db": {R: 0, G: 70, B: 200, A: 255},
 		"E":  {R: 0, G: 100, B: 0, A: 255},     // dark green
 		"F":  {R: 255, G: 165, B: 0, A: 255},   // orange
-		"F#": {R: 144, G: 238, B: 144, A: 255}, // light green (renamed from duplicate "f")
+		"Gb": {R: 144, G: 238, B: 144, A: 255}, // light green (renamed from duplicate "f")
 		"G":  {R: 255, G: 0, B: 0, A: 255},     // red
 	}
 

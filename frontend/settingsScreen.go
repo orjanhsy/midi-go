@@ -47,6 +47,13 @@ func CreateSettingsScreen(
 
 func createColorRow(note string, col color.RGBA, onChange func(string, color.RGBA)) fyne.CanvasObject {
 	label := widget.NewLabel(note + " →")
+	switch note {
+	case "Gb":
+		label = widget.NewLabel("F# →")
+	case "Db":
+		label = widget.NewLabel("C# →")
+	}
+
 	label.TextStyle = fyne.TextStyle{Monospace: true}
 	labelContainer := container.NewStack(label)
 	labelContainer.Resize(fyne.NewSize(40, label.MinSize().Height))
