@@ -44,7 +44,6 @@ func (ui *Ui) Init(dms state.DeviceMenuState, ls state.ListenerState) {
 	)
 
 	prefs := ui.app.Preferences()
-	prefs.RemoveValue("noteColors")
 	ui.DeviceMenu = CreateDeviceMenu(dms, ui.BottomBar)
 	ui.ListenerScreen = CreateListenerScreen(
 		ls, ui.BottomBar, prefs,
